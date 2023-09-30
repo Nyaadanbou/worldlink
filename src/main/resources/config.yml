@@ -1,0 +1,8 @@
+scale:
+  normal: 1.0
+  nether: 1.0
+  end: 1.0
+link:
+  resrc: [ resrc_nether, resrc_the_end ]
+  resrc_nether: [ resrc ]
+  resrc_the_end: [ resrc ]
