@@ -57,7 +57,7 @@ class PortalListener(
      *
      * ### Problem
      * Normally, the Nether Portals in custom worlds do not function at all.
-     * Also, they do not trigger neither [PlayerPortalEvent] nor [EntityPortalEvent].
+     * Also, they trigger neither [PlayerPortalEvent] nor [EntityPortalEvent].
      * The behaviors of the two events are not the same as that if the worlds are default.
      * So, we need a way to fix it.
      *
@@ -145,7 +145,7 @@ class PortalListener(
 
     private fun isDefaultWorld(world: World): Boolean {
         // So far, default worlds always have fixed NamespacedKey values
-        // This might be better than directly reading the server.properties
+        // This is better than directly reading the server.properties
         return world.key.let { it == OVERWORLD_KEY || it == THE_NETHER_KEY || it == THE_END_KEY }
     }
 
