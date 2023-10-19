@@ -15,7 +15,7 @@ class WorldLinkPlugin : ExtendedJavaPlugin() {
         settings = PluginSettings()
         languages = Translations(this)
         nameLinks = WorldNameLinks(settings)
-        PortalListener(nameLinks).also { registerListener(it) }
+        PortalListener(nameLinks).also { registerTerminableListener(it).bindWith(this) }
     }
 }
 
