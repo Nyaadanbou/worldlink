@@ -31,16 +31,13 @@ paper {
     description = project.description
     apiVersion = "1.19"
     author = "Nailm"
-
     serverDependencies {
         register("Kotlin") {
             required = true
-            joinClasspath = true
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
         register("helper") {
             required = true
-            joinClasspath = true
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
     }
