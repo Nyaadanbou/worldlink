@@ -1,6 +1,5 @@
 package cc.mewcraft.worldlink
 
-import cc.mewcraft.mewcore.listener.AutoCloseableListener
 import io.papermc.paper.event.entity.EntityPortalReadyEvent
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter
 import org.bukkit.*
@@ -10,6 +9,7 @@ import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
+import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityPortalEvent
 import org.bukkit.event.player.PlayerPortalEvent
 import org.bukkit.event.player.PlayerTeleportEvent
@@ -51,7 +51,7 @@ private val THE_END_KEY = NamespacedKey.minecraft("the_end")
  */
 class PortalListener(
     private val nameLinks: WorldNameLinks,
-) : AutoCloseableListener {
+) : Listener {
     /**
      * **This handler modifies target world for Nether Portals.**
      *

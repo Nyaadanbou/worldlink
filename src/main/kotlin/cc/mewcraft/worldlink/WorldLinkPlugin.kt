@@ -2,12 +2,12 @@
 
 package cc.mewcraft.worldlink
 
-import cc.mewcraft.mewcore.message.Translations
-import cc.mewcraft.mewcore.plugin.MeowJavaPlugin
+import cc.mewcraft.spatula.message.Translations
 import me.lucko.helper.Helper
+import me.lucko.helper.plugin.ExtendedJavaPlugin
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 
-class WorldLinkPlugin : MeowJavaPlugin() {
+class WorldLinkPlugin : ExtendedJavaPlugin() {
     lateinit var settings: PluginSettings private set
     lateinit var languages: Translations private set
     lateinit var nameLinks: WorldNameLinks private set
@@ -15,7 +15,7 @@ class WorldLinkPlugin : MeowJavaPlugin() {
         settings = PluginSettings()
         languages = Translations(this)
         nameLinks = WorldNameLinks(settings)
-        PortalListener(nameLinks).also { registerListener(it).bindWith(this) }
+        PortalListener(nameLinks).also { registerListener(it) }
     }
 }
 

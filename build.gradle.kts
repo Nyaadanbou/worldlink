@@ -14,14 +14,14 @@ version = "1.0.0"
 description = "Handles the Notch style nether portals across multiple worlds!"
 
 dependencies {
-    compileOnly(project(":mewcore"))
-
+    // server
     compileOnly(libs.server.paper)
 
-    // plugin libs
+    // helper
     compileOnly(libs.helper) { isTransitive = false }
 
-    // shaded libs
+    // internal
+    implementation(project(":spatula:bukkit:message"))
 }
 
 paper {
@@ -30,23 +30,18 @@ paper {
     version = "${project.version}"
     description = project.description
     apiVersion = "1.19"
-    authors = listOf("Nailm")
+    author = "Nailm"
 
     serverDependencies {
         register("Kotlin") {
             required = true
             joinClasspath = true
-            load = PaperPluginDescription.RelativeLoadOrder.OMIT
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
         register("helper") {
             required = true
             joinClasspath = true
-            load = PaperPluginDescription.RelativeLoadOrder.OMIT
-        }
-        register("MewCore") {
-            required = true
-            joinClasspath = true
-            load = PaperPluginDescription.RelativeLoadOrder.OMIT
+            load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
     }
 }
