@@ -2,7 +2,6 @@
 
 package cc.mewcraft.worldlink
 
-import cc.mewcraft.spatula.message.Translations
 import me.lucko.helper.Helper
 import me.lucko.helper.plugin.ExtendedJavaPlugin
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger

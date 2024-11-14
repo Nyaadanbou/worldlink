@@ -66,9 +66,7 @@ class WorldNameLinks(
                 }
             }
 
-            Environment.NETHER,
-            Environment.THE_END,
-            -> {
+            Environment.NETHER, Environment.THE_END -> {
                 if (possibleTargets.size > 1) {
                     logger.warn("Amount of target worlds for `$fromName` is more than 1.")
                     logger.warn("Only the first target world found is taken as the target world.")
