@@ -245,19 +245,9 @@ class PortalListener(
                 if (to.environment != Environment.THE_END) {
                     error("Target world environment is not ${Environment.THE_END}")
                 }
-                val toLoc = Location(to, 100.5, 50.0, 0.5) // This is the vanilla location for obsidian platform
+                val toLoc = Location(to, 100.5, 48.0, 0.5) // This is the vanilla location for obsidian platform
                 // Construct the vanilla obsidian platform
-                val toBlock = toLoc.block
-                for (x in toBlock.x - 2..toBlock.x + 2) {
-                    for (z in toBlock.z - 2..toBlock.z + 2) {
-                        val platformBlock = toLoc.getWorld().getBlockAt(x, toBlock.y - 1, z)
-                        if (platformBlock.type != Material.OBSIDIAN) platformBlock.type = Material.OBSIDIAN
-                        for (yMod in 1..3) {
-                            val b = platformBlock.getRelative(BlockFace.UP, yMod)
-                            if (b.type != Material.AIR) b.type = Material.AIR
-                        }
-                    }
-                }
+                // constructObsidianPlatform(toLoc) // 服务端 (Paper 1.21.1+) 现在会自动生成这个平台了
                 return toLoc
             }
 
@@ -270,6 +260,24 @@ class PortalListener(
             }
 
             else -> error("The environment of `from` world is neither ${Environment.NORMAL} nor ${Environment.THE_END}")
+        }
+    }
+
+    private fun constructObsidianPlatform(toLoc: Location) {
+        val toBlock = toLoc.block
+        for (x in toBlock.x - 2..toBlock.x + 2) {
+            for (z in toBlock.z - 2..toBlock.z + 2) {
+                val platformBlock = toLoc.world.getBlockAt(x, toBlock.y - 1, z)
+                if (platformBlock.type != Material.OBSIDIAN) {
+                    platformBlock.type = Material.OBSIDIAN
+                }
+                for (yMod in 1..3) {
+                    val b = platformBlock.getRelative(BlockFace.UP, yMod)
+                    if (b.type != Material.AIR) {
+                        b.type = Material.AIR
+                    }
+                }
+            }
         }
     }
 }
