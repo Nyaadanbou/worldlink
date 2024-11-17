@@ -3,13 +3,12 @@ package cc.mewcraft.worldlink
 import io.papermc.paper.event.entity.EntityPortalReadyEvent
 import net.kyori.adventure.text.minimessage.tag.resolver.Formatter
 import org.bukkit.*
-import org.bukkit.World.Environment
+import org.bukkit.World.*
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
-import org.bukkit.event.EventHandler
-import org.bukkit.event.EventPriority
-import org.bukkit.event.Listener
+import org.bukkit.event.*
+import org.bukkit.event.entity.EntityPortalEnterEvent
 import org.bukkit.event.entity.EntityPortalEvent
 import org.bukkit.event.player.PlayerPortalEvent
 import org.bukkit.event.player.PlayerTeleportEvent
@@ -52,6 +51,8 @@ private val THE_END_KEY = NamespacedKey.minecraft("the_end")
 class PortalListener(
     private val nameLinks: WorldNameLinks,
 ) : Listener {
+
+
     /**
      * **This handler modifies target world for Nether Portals.**
      *
@@ -67,7 +68,7 @@ class PortalListener(
      * With that, the Nether Portals in custom worlds can work correctly, just like those in default worlds.
      * See [#5619](https://github.com/PaperMC/Paper/pull/5619) for more information.
      */
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onPortalReady(e: EntityPortalReadyEvent) {
         val world = e.entity.world
 
@@ -79,7 +80,7 @@ class PortalListener(
         val target = nameLinks.findTo(world, e.portalType)
         if (target != null) {
             e.targetWorld = target // See javadoc of `e.targetWorld` for motivation
-            logger.info("Redirect portal link: `${world.name}` -> `${target.name}`")
+            logger.info("Redirected portal link: `${world.name}` -> `${target.name}`")
         } else {
             logger.warn("Cannot find portal link: `${world.name}` -> `null`")
         }
@@ -92,24 +93,22 @@ class PortalListener(
     /**
      * (For Players) This handler:
      * - modifies location scale for Nether Portals.
-     * - modifies target world for End Portals.
      */
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onPlayerPortal(e: PlayerPortalEvent) {
         when (e.cause) {
             // This handles both ways: Normal <-> The_Nether
             PlayerTeleportEvent.TeleportCause.NETHER_PORTAL -> {
+                logger.info("Handling PlayerPortalEvent for nether portals")
                 val to = e.to
                 val from = e.from
-                val newTo = findNetherPortalTeleportLocation(from = from, target = to, entity = e.player)
+                val newTo = findNetherPortalTeleportLocation(from = from, target = to.world, entity = e.player)
                 newTo?.let { e.to = it }
             }
 
             // This handles both ways: Normal <-> The_End
             PlayerTeleportEvent.TeleportCause.END_PORTAL -> {
-                val fromLocation = e.from
-                val newTo = findEndPortalTeleportLocation(from = fromLocation.world)
-                newTo?.let { e.to = it }
+                logger.warn("Skipped handling PlayerPortalEvent for end portals")
             }
 
             else -> {}
@@ -121,22 +120,65 @@ class PortalListener(
      * - modifies location scale for Nether Portals.
      * - modifies target world for End Portals.
      */
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     fun onEntityPortal(e: EntityPortalEvent) {
         when (e.portalType) {
             // This handles both ways: Normal <-> The_Nether
             PortalType.NETHER -> {
+                logger.info("Handling EntityPortalEvent for nether portals")
                 val toLocation = e.to
                 val fromLocation = e.from
-                val newTo = findNetherPortalTeleportLocation(from = fromLocation, target = toLocation, entity = e.entity)
+                val newTo = findNetherPortalTeleportLocation(from = fromLocation, target = toLocation?.world, entity = e.entity)
                 e.to = newTo
             }
 
             // This handles both ways: Normal <-> The_End
             PortalType.ENDER -> {
+                logger.info("Handling EntityPortalEvent for end portals")
                 val fromLocation = e.from
                 val newTo = findEndPortalTeleportLocation(from = fromLocation.world)
                 e.to = newTo
+            }
+
+            else -> {}
+        }
+    }
+
+    /**
+     * 储存了正在执行末地传送门传送逻辑的所有实体.
+     */
+    private val processingEntities = hashSetOf<Entity>()
+
+    /**
+     * (For All Entities) This handler:
+     * - modifies target world for End Portals.
+     */
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    fun onEntityPortal(e: EntityPortalEnterEvent) {
+        when (e.portalType) {
+            // This handles both ways: Normal <-> The_Nether
+            PortalType.NETHER -> {
+                // logger.warn("Skipped handling EntityPortalEnterEvent for nether portals")
+            }
+
+            // This handles both ways: Normal <-> The_End
+            PortalType.ENDER -> {
+                val entity = e.entity
+
+                // 如果实体已经在处理列表中，直接返回
+                if (processingEntities.contains(entity)) {
+                    return
+                }
+
+                logger.info("Handling EntityPortalEnterEvent for end portals")
+                val fromLocation = e.location
+                val newTo = findEndPortalTeleportLocation(from = fromLocation.world)
+                if (newTo != null) {
+                    processingEntities.add(entity)
+                    entity.teleportAsync(newTo).thenRun {
+                        processingEntities.remove(entity)
+                    }
+                }
             }
 
             else -> {}
@@ -163,12 +205,12 @@ class PortalListener(
      *
      * To find the teleport location for End Portals, use [findEndPortalTeleportLocation].
      */
-    private fun findNetherPortalTeleportLocation(from: Location, target: Location?, entity: Entity?): Location? {
+    private fun findNetherPortalTeleportLocation(from: Location, target: World?, entity: Entity?): Location? {
         if (target == null) return null
 
         // Compute the scaled target location (only X and Z)
         val fromScaling = getWorldScaling(from.getWorld())
-        val toScaling = getWorldScaling(target.getWorld())
+        val toScaling = getWorldScaling(target)
         val scaling = fromScaling / toScaling
         val scaleX = from.x * scaling
         val scaleZ = from.z * scaling
@@ -182,7 +224,7 @@ class PortalListener(
         }
 
         return Location(
-            target.getWorld(),
+            target,
             scaleX,
             from.y,
             scaleZ,
