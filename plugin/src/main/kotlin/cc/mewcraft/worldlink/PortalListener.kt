@@ -72,14 +72,14 @@ class PortalListener : Listener {
         val world = e.entity.world
 
         if (isDefaultWorld(world)) {
-            logger.info("Portal links for `${world.name}` is handled by vanilla game")
+            // logger.info("Portal links for `${world.name}` is handled by vanilla game")
             return
         }
 
         val target = nameLinks.findTo(world, e.portalType)
         if (target != null) {
             e.targetWorld = target // See javadoc of `e.targetWorld` for motivation
-            logger.info("Redirected portal link: `${world.name}` -> `${target.name}`")
+            // logger.info("Redirected portal link: `${world.name}` -> `${target.name}`")
         } else {
             logger.warn("Cannot find portal link: `${world.name}` -> `null`")
         }
@@ -98,7 +98,7 @@ class PortalListener : Listener {
         when (e.cause) {
             // This handles both ways: Normal <-> The_Nether
             PlayerTeleportEvent.TeleportCause.NETHER_PORTAL -> {
-                logger.info("Handling PlayerPortalEvent for nether portals")
+                // logger.info("Handling PlayerPortalEvent for nether portals")
                 val to = e.to
                 val from = e.from
                 val newTo = findNetherPortalTeleportLocation(from = from, target = to.world, entity = e.player)
@@ -124,7 +124,7 @@ class PortalListener : Listener {
         when (e.portalType) {
             // This handles both ways: Normal <-> The_Nether
             PortalType.NETHER -> {
-                logger.info("Handling EntityPortalEvent for nether portals")
+                // logger.info("Handling EntityPortalEvent for nether portals")
                 val toLocation = e.to
                 val fromLocation = e.from
                 val newTo = findNetherPortalTeleportLocation(from = fromLocation, target = toLocation?.world, entity = e.entity)
@@ -133,7 +133,7 @@ class PortalListener : Listener {
 
             // This handles both ways: Normal <-> The_End
             PortalType.ENDER -> {
-                logger.info("Handling EntityPortalEvent for end portals")
+                // logger.info("Handling EntityPortalEvent for end portals")
                 val fromLocation = e.from
                 val newTo = findEndPortalTeleportLocation(from = fromLocation.world)
                 e.to = newTo
@@ -169,7 +169,7 @@ class PortalListener : Listener {
                     return
                 }
 
-                logger.info("Handling EntityPortalEnterEvent for end portals")
+                // logger.info("Handling EntityPortalEnterEvent for end portals")
                 val fromLocation = e.location
                 val newTo = findEndPortalTeleportLocation(from = fromLocation.world)
                 if (newTo != null) {
