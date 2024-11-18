@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 package cc.mewcraft.worldlink
 
 import io.papermc.paper.event.entity.EntityPortalReadyEvent
@@ -48,10 +50,7 @@ private val THE_END_KEY = NamespacedKey.minecraft("the_end")
  * Function [onPlayerPortal] modifies the location scale of Nether Portals and the target world of End Portals for players.
  * Function [onEntityPortal] does the same thing as [onPlayerPortal] but for non-player entities.
  */
-class PortalListener(
-    private val nameLinks: WorldNameLinks,
-) : Listener {
-
+class PortalListener : Listener {
 
     /**
      * **This handler modifies target world for Nether Portals.**
@@ -195,7 +194,7 @@ class PortalListener(
         return when (world.environment) {
             Environment.NORMAL -> plugin.settings.normalScale
             Environment.NETHER -> plugin.settings.netherScale
-            Environment.THE_END -> plugin.settings.endScale
+            Environment.THE_END -> plugin.settings.theEndScale
             else -> error(world.name + " has no scale defined in the config")
         }
     }
@@ -216,7 +215,7 @@ class PortalListener(
         val scaleZ = from.z * scaling
 
         if (entity is Player) {
-            plugin.languages.of("world_scale_tips")
+            languages.of("world_scale_tips")
                 .resolver(
                     Formatter.number("scale_from", fromScaling),
                     Formatter.number("scale_to", toScaling)
@@ -245,7 +244,7 @@ class PortalListener(
                 if (to.environment != Environment.THE_END) {
                     error("Target world environment is not ${Environment.THE_END}")
                 }
-                val toLoc = Location(to, 100.5, 48.0, 0.5) // This is the vanilla location for obsidian platform
+                val toLoc = plugin.settings.theEndSpawn.toLocation(to)
                 // Construct the vanilla obsidian platform
                 // constructObsidianPlatform(toLoc) // 服务端 (Paper 1.21.1+) 现在会自动生成这个平台了
                 return toLoc

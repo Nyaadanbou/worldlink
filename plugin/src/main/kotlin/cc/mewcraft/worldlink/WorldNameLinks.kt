@@ -4,7 +4,7 @@ import com.google.common.collect.Multimap
 import me.lucko.helper.Helper
 import org.bukkit.PortalType
 import org.bukkit.World
-import org.bukkit.World.Environment
+import org.bukkit.World.*
 
 private const val NETHER_SUFFIX = "_nether"
 private const val ENDER_SUFFIX = "_the_end"
@@ -12,10 +12,12 @@ private const val ENDER_SUFFIX = "_the_end"
 /**
  * Pure world name links. No actual worlds are handled by this class.
  */
-class WorldNameLinks(
-    settings: PluginSettings,
-) {
-    private val nameLinks: Multimap<String, String> by lazy { settings.portalLinks }
+class WorldNameLinks {
+
+    private val nameLinks: Multimap<String, String>
+        get() {
+            return plugin.settings.nameLinks
+        }
 
     /**
      * Finds the target world for [from] world by name links defined in the config file.

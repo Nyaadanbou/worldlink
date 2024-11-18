@@ -1,8 +1,15 @@
 scale:
   normal: 1.0
   nether: 1.0
-  end: 1.0
+  the_end: 1.0
 link:
   resrc: [ resrc_nether, resrc_the_end ]
   resrc_nether: [ resrc ]
   resrc_the_end: [ resrc ]
+
+# 这是 Paper 1.21.1+ 在默认情况之下,
+# 玩家跳进主世界的末地门传送到末地的坐标
+the_end_spawn:
+  x: 100.5
+  y: 49.0
+  z: 0.5

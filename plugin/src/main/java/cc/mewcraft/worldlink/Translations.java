@@ -33,4 +33,8 @@ public class Translations {
     public TranslationBuilder of(String key) {
         return new TranslationBuilder(languageManager, key);
     }
+
+    public void reload() {
+        languageManager.loadConfigs();
+    }
 }
